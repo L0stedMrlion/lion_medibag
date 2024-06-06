@@ -1,7 +1,6 @@
 local bags = {}
 local bagOptions = Config.MedibagTarget
 local medibagprop = Config.MedibagProp
-local medibagIds = {}
 
 RegisterNetEvent("lion_medibag:placeMedbag")
 AddEventHandler(
@@ -25,7 +24,6 @@ AddEventHandler(
         local medibagId = GetClosestObjectOfType(pedCoords, 2.0, GetHashKey("xm_prop_x17_bag_med_01a"), false, false, false)
         if medibagId ~= 0 then
             DeleteEntity(medibagId)
-            table.remove(medibagIds, table.find(medibagIds, medibagId))
         end
     end
 )
@@ -50,8 +48,6 @@ AddEventHandler(
             local newBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
             SetEntityHeading(newBag, GetEntityHeading(playerPed))
             PlaceObjectOnGroundProperly(newBag)
-            table.insert(bags, newBag)
-            table.insert(medibagIds, newBag)
         end
     end
 )
