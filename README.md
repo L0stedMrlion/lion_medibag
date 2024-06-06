@@ -31,6 +31,9 @@
 		}
 	},
 ```
+## 📋 To-do list
+
+- [ ] Add inventory to open on place
 
 ## 🦁 SUPPORT
 
