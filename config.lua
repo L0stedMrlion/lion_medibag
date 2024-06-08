@@ -16,7 +16,6 @@ Config.MedibagTarget = {
 Config.Locale = {
     ['pickedupmedbag'] = "Medibag has been picked up",
     ['placemedbag'] = "Medibag has been placed",
-    ['cantcarry'] = "You can't carry this!",
 }
 
 Notify = function(title, desciption, duration) -- REPLACE WITH YOUR OWN NOTIFICATIONS
