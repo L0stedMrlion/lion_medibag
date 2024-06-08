@@ -1,20 +1,14 @@
 local bags = {}
-local bagOptions = Config.MedibagTarget
 local medibagprop = Config.MedibagProp
 
-RegisterNetEvent("lion_medibag:placeMedbag")
-AddEventHandler(
-    "lion_medibag:placeMedbag",
-    function()
-        TriggerServerEvent("lion_medibag:placeMedbag")
-    end
-)
+local function placeMedbag()
+    TriggerServerEvent('lion_medibag:placeMedbag')
+end
+RegisterNetEvent('lion_medibag:placeMedbag', placeMedbag)
 
-RegisterNetEvent("lion_medibag:pickupMedbag")
-AddEventHandler("lion_medibag:pickupMedbag", function()
-    local playerPed = PlayerPedId()
-    local pedCoords = GetEntityCoords(playerPed)
-    lib.playAnim(playerPed, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
+RegisterNetEvent('lion_medibag:pickupMedbag', function()
+    local pedCoords = GetEntityCoords(cache.ped)
+    lib.playAnim(cache.ped, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
 
     if Config.Notifications then
         Notify("Medibag", Config.Locale["pickedupmedbag"], 2000)
@@ -24,8 +18,7 @@ AddEventHandler("lion_medibag:pickupMedbag", function()
     TriggerServerEvent("lion_medibag:canPickupMedbag", NetworkGetNetworkIdFromEntity(medibag))
 end)
 
-RegisterNetEvent("lion_medibag:pickupMedbagResponse")
-AddEventHandler("lion_medibag:pickupMedbagResponse", function(canCarry, medibagNetId)
+RegisterNetEvent("lion_medibag:pickupMedbagResponse", function(canCarry, medibagNetId)
     if canCarry then
         local medibag = NetworkGetEntityFromNetworkId(medibagNetId)
         if medibag ~= 0 then
@@ -37,45 +30,35 @@ AddEventHandler("lion_medibag:pickupMedbagResponse", function(canCarry, medibagN
                 end
             end
         end
-    else
     end
 end)
 
-RegisterNetEvent("lion_medibag:place")
-AddEventHandler(
-    "lion_medibag:place",
-    function()
-        lib.RequestModel(medibagprop)
-        while not HasModelLoaded(medibagprop) do
-            Citizen.Wait(10)
+RegisterNetEvent("lion_medibag:place", function()
+    lib.requestModel(medibagprop)
+    local itemCount = lib.callback.await("ox_inventory:getItemCount", false, Config.MedibagItem, {})
+    local pedCoords = GetEntityCoords(cache.ped)
+    if itemCount >= 1 then
+        lib.playAnim(cache.ped, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
+        placeMedbag()
+        if Config.Notifications then
+            Notify("Medibag", Config.Locale["placemedbag"], 2000)
         end
-        local playerPed = PlayerPedId()
-        local itemCount = lib.callback.await("ox_inventory:getItemCount", false, Config.MedibagItem, {})
-        local pedCoords = GetEntityCoords(playerPed)
-        if itemCount >= 1 then
-            lib.playAnim(playerPed, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
-            TriggerEvent("lion_medibag:placeMedbag")
-            if Config.Notifications then
-                Notify("Medibag", Config.Locale["placemedbag"], 2000)
-            end
-            local newMedBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
-            SetEntityHeading(newMedBag, GetEntityHeading(playerPed))
-            PlaceObjectOnGroundProperly(newMedBag)
-            table.insert(bags, newMedBag)
-        end
+        local newMedBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
+        SetEntityHeading(newMedBag, GetEntityHeading(cache.ped))
+        PlaceObjectOnGroundProperly(newMedBag)
+        bags[#bags + 1] = newMedBag
     end
-)
+end)
 
-AddEventHandler(
-    "onResourceStop",
-    function(resourceName)
-        if resourceName == GetCurrentResourceName() then
-            for _, medibag in pairs(bags) do
-                if DoesEntityExist(medibag) then
-                    DeleteEntity(medibag)
-                end
+AddEventHandler("onResourceStop", function(resourceName)
+    if resourceName == cache.resource then
+        for i = 1, #bags do
+            local bagId = bags[i];
+            if DoesEntityExist(bagId) then
+                DeleteEntity(bagId)
             end
         end
     end
-)
-exports.ox_target:addModel(medibagprop, bagOptions)
+end)
+
+exports.ox_target:addModel(medibagprop, Config.MedibagTarget)
