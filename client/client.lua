@@ -11,22 +11,30 @@ AddEventHandler(
 )
 
 RegisterNetEvent("lion_medibag:pickupMedbag")
-AddEventHandler(
-    "lion_medibag:pickupMedbag",
-    function()
-        local playerPed = PlayerPedId()
-        local pedCoords = GetEntityCoords(playerPed)
-        lib.playAnim(playerPed, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
-        TriggerServerEvent("lion_medibag:pickupMedbag")
-        if Config.Notifications then
-            Notify("Medibag", Config.Locale["pickedupmedbag"], 2000)
-        end
-        local medibagId = GetClosestObjectOfType(pedCoords, 2.0, GetHashKey("xm_prop_x17_bag_med_01a"), false, false, false)
-        if medibagId ~= 0 then
-            DeleteEntity(medibagId)
-        end
+AddEventHandler("lion_medibag:pickupMedbag", function()
+    local playerPed = PlayerPedId()
+    local pedCoords = GetEntityCoords(playerPed)
+    lib.playAnim(playerPed, "random@domestic", "pickup_low", 5.0, 1.0, -1, 48, 0, 0, 0, 0)
+
+    if Config.Notifications then
+        Notify("Medibag", Config.Locale["pickedupmedbag"], 2000)
     end
-)
+
+    local medibag = GetClosestObjectOfType(pedCoords, 2.0, GetHashKey(medibagprop), false, false, false)
+    TriggerServerEvent("lion_medibag:canPickupMedbag", NetworkGetNetworkIdFromEntity(medibag))
+end)
+
+RegisterNetEvent("lion_medibag:pickupMedbagResponse")
+AddEventHandler("lion_medibag:pickupMedbagResponse", function(canCarry, medibagNetId)
+    if canCarry then
+        local medibag = NetworkGetEntityFromNetworkId(medibagNetId)
+        if medibag ~= 0 then
+            DeleteEntity(medibag)
+        end
+    else
+    end
+end)
+
 
 RegisterNetEvent("lion_medibag:place")
 AddEventHandler(
@@ -45,9 +53,9 @@ AddEventHandler(
             if Config.Notifications then
                 Notify("Medibag", Config.Locale["placemedbag"], 2000)
             end
-            local newBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
-            SetEntityHeading(newBag, GetEntityHeading(playerPed))
-            PlaceObjectOnGroundProperly(newBag)
+            local newMedBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
+            SetEntityHeading(newMedBag, GetEntityHeading(playerPed))
+            PlaceObjectOnGroundProperly(newMedBag)
         end
     end
 )
