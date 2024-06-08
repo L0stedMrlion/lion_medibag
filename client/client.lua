@@ -30,11 +30,17 @@ AddEventHandler("lion_medibag:pickupMedbagResponse", function(canCarry, medibagN
         local medibag = NetworkGetEntityFromNetworkId(medibagNetId)
         if medibag ~= 0 then
             DeleteEntity(medibag)
+            for i, bag in ipairs(bags) do
+                if bag == medibag then
+                    table.remove(bags, i)
+                    break
+                end
+            end
         end
     else
+        Notify("Medibag", Config.Locale["cantcarry"], 2000)
     end
 end)
-
 
 RegisterNetEvent("lion_medibag:place")
 AddEventHandler(
@@ -56,6 +62,7 @@ AddEventHandler(
             local newMedBag = CreateObject(medibagprop, pedCoords.x, pedCoords.y, pedCoords.z - 1, true, false, false)
             SetEntityHeading(newMedBag, GetEntityHeading(playerPed))
             PlaceObjectOnGroundProperly(newMedBag)
+            table.insert(bags, newMedBag)
         end
     end
 )
@@ -64,9 +71,9 @@ AddEventHandler(
     "onResourceStop",
     function(resourceName)
         if resourceName == GetCurrentResourceName() then
-            for _, bag in pairs(bags) do
-                if DoesEntityExist(bag) then
-                    DeleteEntity(bag)
+            for _, medibag in pairs(bags) do
+                if DoesEntityExist(medibag) then
+                    DeleteEntity(medibag)
                 end
             end
         end
