@@ -38,7 +38,6 @@ AddEventHandler("lion_medibag:pickupMedbagResponse", function(canCarry, medibagN
             end
         end
     else
-        Notify("Medibag", Config.Locale["cantcarry"], 2000)
     end
 end)
 
