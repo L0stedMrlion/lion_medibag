@@ -42,6 +42,11 @@ Config.HealingTarget = {
             local health = GetEntityHealth(closestPlayerPed)
             local maxHealth = GetEntityMaxHealth(closestPlayerPed)
 
+            if IsEntityDead(closestPlayerPed) then
+                Notify("Medibag", locale("deathplayer"), "fa-solid fa-skull", "#ed1b24", 2500)
+                return
+            end
+
             if health < maxHealth then
                 TaskStartScenarioInPlace(playerPed, 'CODE_HUMAN_MEDIC_TEND_TO_DEAD', 0, true)
                 Wait(6000)
