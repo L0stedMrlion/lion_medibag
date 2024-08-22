@@ -1,9 +1,9 @@
 fx_version "cerulean"
 game "gta5"
 
-author "Mrlion (@lostedmrlion)"
-description "Medibag script for better EMS RP"
-version "1.0"
+author "Mrlion"
+description "Script for EMS, adds medibag for them"
+version "2.0"
 lua54 "true"
 
 shared_scripts {
@@ -12,15 +12,13 @@ shared_scripts {
 }
 
 client_scripts {
-    "client/client.lua"
+    "client/client.lua",
 }
 
 server_scripts {
     "server/server.lua"
 }
 
-dependencies {
-    'ox_target',
-    'ox_lib',
-    "ox_inventory"
+files {
+    "locales/*.json"
 }
